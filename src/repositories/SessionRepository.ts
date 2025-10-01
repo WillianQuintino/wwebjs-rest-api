@@ -91,13 +91,16 @@ export class SessionRepository {
   /**
    * Atualiza o QR Code de uma sessão
    */
-  updateQrCode(sessionId: string, qrCode: string): void {
+  updateQrCode(sessionId: string, qrCode: string, qrText?: string): void {
     const session = this.findById(sessionId);
     if (!session) {
       throw ApiError.clientNotFound(sessionId);
     }
 
     session.qrCode = qrCode;
+    if (qrText) {
+      session.qrText = qrText;
+    }
     session.updatedAt = new Date();
     this.save(session);
   }

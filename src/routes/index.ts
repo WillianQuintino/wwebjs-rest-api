@@ -14,6 +14,10 @@ const router = Router();
 // ===== CLIENT ROUTES =====
 router.post('/sessions/:sessionId/init', asyncHandler(clientController.initializeSession.bind(clientController)));
 router.get('/sessions/:sessionId', asyncHandler(clientController.getSession.bind(clientController)));
+router.get('/sessions/:sessionId/qr', asyncHandler(clientController.getQrCode.bind(clientController)));
+router.get('/sessions/:sessionId/qr/image', asyncHandler(clientController.getQrCodeImage.bind(clientController)));
+router.get('/sessions/:sessionId/qr/svg', asyncHandler(clientController.getQrCodeSvg.bind(clientController)));
+router.get('/sessions/:sessionId/qr/ascii', asyncHandler(clientController.getQrCodeAscii.bind(clientController)));
 router.get('/sessions', asyncHandler(clientController.getAllSessions.bind(clientController)));
 router.delete('/sessions/:sessionId', asyncHandler(clientController.destroySession.bind(clientController)));
 router.post('/sessions/:sessionId/logout', asyncHandler(clientController.logoutSession.bind(clientController)));

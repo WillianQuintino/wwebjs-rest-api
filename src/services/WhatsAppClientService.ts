@@ -83,7 +83,7 @@ export class WhatsAppClientService extends EventEmitter {
     client.on('qr', async (qr) => {
       try {
         const qrCodeDataURL = await qrcode.toDataURL(qr);
-        sessionRepository.updateQrCode(sessionId, qrCodeDataURL);
+        sessionRepository.updateQrCode(sessionId, qrCodeDataURL, qr);
         sessionRepository.updateStatus(sessionId, ClientStatus.QR_CODE);
 
         this.emit('qr', { sessionId, qr: qrCodeDataURL });

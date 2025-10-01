@@ -5,6 +5,7 @@ export interface IWhatsAppClient {
   client: Client;
   isReady: boolean;
   qrCode?: string;
+  qrText?: string;
   status: ClientStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +25,7 @@ export interface IClientInfo {
   status: ClientStatus;
   isReady: boolean;
   qrCode?: string;
+  qrUrl?: string;
   phoneNumber?: string;
   platform?: string;
   pushname?: string;

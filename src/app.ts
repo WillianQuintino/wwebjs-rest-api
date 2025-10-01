@@ -6,7 +6,7 @@ import 'express-async-errors';
 import swaggerUi from 'swagger-ui-express';
 
 import swaggerSpec from './config/swagger';
-import { env, logger, morganStream } from './config';
+import { env, morganStream } from './config';
 import { errorHandler } from './middlewares';
 import routes from './routes';
 

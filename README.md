@@ -153,33 +153,165 @@ http://localhost:3000/api/v1
 
 ### Autenticação de Sessão
 
+#### 🔄 Fluxo de Autenticação
+
+1. **Inicializar sessão**: `POST /sessions/:sessionId/init` ✨ **Já retorna todos os links!**
+2. **Aguardar geração do QR**: Alguns segundos
+3. **Usar os links da resposta inicial**:
+   - `qrImageUrl`: Abrir diretamente no navegador
+   - `qrEndpoint`: Obter JSON com QR Code
+   - `sessionInfoUrl`: Informações completas da sessão
+4. **Escanear QR** com WhatsApp
+5. **Verificar autenticação**: Usar `sessionInfoUrl` (status: `READY`)
+
+```mermaid
+graph LR
+    A[POST /init] --> |INITIALIZING| B[Aguardar]
+    B --> |QR gerado| C{Opções de QR}
+    C --> |JSON| D[GET /session]
+    C --> |JSON específico| E[GET /qr]
+    C --> |Imagem PNG| F[GET /qr/image]
+    D --> G[Escanear QR]
+    E --> G
+    F --> G
+    G --> |AUTHENTICATING| H[GET /session]
+    H --> |READY| I[✅ Pronto!]
+```
+
+#### 💡 Vantagens dos Novos Endpoints
+
+- **PNG**: Formato tradicional, compatível com tudo
+- **SVG**: Escalável, perfeito para responsividade 
+- **ASCII**: Ideal para terminais, logs e debugging
+- **Links Diretos**: Todos os formatos acessíveis via URL
+- **Navegador**: Abra qualquer formato diretamente no browser
+- **HTML**: Use `<img>` com qualquer formato
+- **Desenvolvimento**: Máxima flexibilidade para integração
+
+#### 🎯 Casos de Uso
+
+- **Web/Mobile**: Use SVG para escalabilidade
+- **Terminal/CLI**: Use ASCII para visualização rápida  
+- **Logs/Debug**: ASCII é text-friendly
+- **Print/PDF**: PNG para máxima compatibilidade
+
 #### Inicializar Sessão
 
 ```http
 POST /sessions/:sessionId/init
 ```
 
-Inicializa uma nova sessão do WhatsApp. Retorna QR Code para escaneamento.
+Inicializa uma nova sessão do WhatsApp. O QR Code é gerado assincronamente após a inicialização.
 
-**Resposta:**
+**Resposta inicial com todos os endpoints:**
 ```json
 {
   "success": true,
   "data": {
-    "sessionId": "default",
+    "sessionId": "TestSVG",
     "status": "INITIALIZING",
-    "qrCode": "data:image/png;base64,..."
+    "qrEndpoint": "http://localhost:3000/api/v1/sessions/TestSVG/qr",
+    "qrImageUrl": "http://localhost:3000/api/v1/sessions/TestSVG/qr/image",
+    "qrSvgUrl": "http://localhost:3000/api/v1/sessions/TestSVG/qr/svg",
+    "qrAsciiUrl": "http://localhost:3000/api/v1/sessions/TestSVG/qr/ascii",
+    "sessionInfoUrl": "http://localhost:3000/api/v1/sessions/TestSVG",
+    "message": "QR Code will be available at these endpoints when status changes to 'QR_CODE'"
   },
   "message": "Session initialized successfully",
   "timestamp": "2025-10-01T00:00:00.000Z"
 }
 ```
 
+> **✅ Novo**: Agora a resposta inicial já inclui todos os links necessários para acessar o QR Code!
+
 #### Obter Sessão
 
 ```http
 GET /sessions/:sessionId
 ```
+
+Obtém informações detalhadas da sessão, incluindo QR Code quando disponível.
+
+**Resposta com QR Code:**
+```json
+{
+  "success": true,
+  "data": {
+    "sessionId": "WillianQuintino",
+    "status": "QR_CODE",
+    "isReady": false,
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...",
+    "qrUrl": "http://localhost:3000/api/v1/sessions/WillianQuintino/qr/image"
+  },
+  "timestamp": "2025-10-01T20:16:39.075Z"
+}
+```
+
+#### Obter QR Code
+
+```http
+GET /sessions/:sessionId/qr
+```
+
+Obtém apenas as informações do QR Code com URL de acesso direto.
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "data": {
+    "sessionId": "WillianQuintino",
+    "status": "QR_CODE",
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...",
+    "qrUrl": "http://localhost:3000/api/v1/sessions/WillianQuintino/qr/image"
+  },
+  "timestamp": "2025-10-01T20:16:39.075Z"
+}
+```
+
+#### Visualizar QR Code
+
+```http
+GET /sessions/:sessionId/qr/image
+```
+
+Retorna diretamente a imagem PNG do QR Code. Pode ser acessada diretamente no navegador ou usada em tags `<img>`.
+
+#### QR Code Escalável (SVG)
+
+```http
+GET /sessions/:sessionId/qr/svg
+```
+
+Retorna QR Code em formato SVG escalável, perfeito para diferentes tamanhos de tela.
+
+#### QR Code ASCII (Texto)
+
+```http
+GET /sessions/:sessionId/qr/ascii
+```
+
+Retorna QR Code em formato ASCII art, ideal para terminais e logs.
+
+**Exemplos de uso:**
+```html
+<!-- PNG tradicional -->
+<img src="http://localhost:3000/api/v1/sessions/SuaSessao/qr/image" alt="WhatsApp QR Code" />
+
+<!-- SVG escalável -->
+<img src="http://localhost:3000/api/v1/sessions/SuaSessao/qr/svg" alt="WhatsApp QR Code" style="width: 200px;" />
+
+<!-- ASCII no terminal -->
+curl http://localhost:3000/api/v1/sessions/SuaSessao/qr/ascii
+```
+
+**Possíveis status:**
+- `INITIALIZING`: Sessão sendo inicializada
+- `QR_CODE`: QR Code disponível para escaneamento
+- `AUTHENTICATING`: QR Code escaneado, autenticando
+- `READY`: Sessão pronta para uso
+- `DISCONNECTED`: Sessão desconectada
+- `ERROR`: Erro na sessão
 
 #### Listar Todas as Sessões
 

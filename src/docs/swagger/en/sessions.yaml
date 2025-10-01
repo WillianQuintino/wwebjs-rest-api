@@ -1,0 +1,213 @@
+# Session Management Endpoints
+
+/sessions/{sessionId}/init:
+  post:
+    tags:
+      - 🔐 Session Management
+    summary: Initialize WhatsApp session
+    description: |
+      Creates and initializes a new WhatsApp Web session. This will generate a QR code that needs to be scanned with WhatsApp mobile app.
+
+      **Flow**: INITIALIZING → QR_CODE → AUTHENTICATING → READY
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Unique identifier for this session
+        example: my-session
+    responses:
+      200:
+        description: Session initialized successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      500:
+        description: Initialization failed
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/sessions/{sessionId}:
+  get:
+    tags:
+      - 🔐 Session Management
+    summary: Get session status
+    description: Retrieves current session information including status, QR code availability, and ready state
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Session details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      404:
+        description: Session not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  delete:
+    tags:
+      - 🔐 Session Management
+    summary: Destroy session
+    description: Permanently destroys the session and removes all associated data
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Session destroyed successfully
+      404:
+        description: Session not found
+
+/sessions/{sessionId}/qr/image:
+  get:
+    tags:
+      - 📱 QR Code Access
+    summary: Get QR code as PNG image
+    description: Returns QR code as a PNG image for web display
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: QR code PNG image
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      404:
+        description: QR code not available
+
+/sessions/{sessionId}/qr/svg:
+  get:
+    tags:
+      - 📱 QR Code Access
+    summary: Get QR code as SVG
+    description: Returns QR code as scalable vector graphic (SVG) for responsive design
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: QR code SVG
+        content:
+          image/svg+xml:
+            schema:
+              type: string
+      404:
+        description: QR code not available
+
+/sessions/{sessionId}/qr/ascii:
+  get:
+    tags:
+      - 📱 QR Code Access
+    summary: Get QR code as ASCII text
+    description: Returns QR code as ASCII art for terminal/console display
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: QR code ASCII text
+        content:
+          text/plain:
+            schema:
+              type: string
+      404:
+        description: QR code not available
+
+/sessions:
+  get:
+    tags:
+      - 🔐 Session Management
+    summary: List all sessions
+    description: Returns list of all active sessions
+    responses:
+      200:
+        description: List of sessions
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/logout:
+  post:
+    tags:
+      - 🔐 Session Management
+    summary: Logout session
+    description: Logs out from WhatsApp Web but keeps session data
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Logged out successfully
+      404:
+        description: Session not found
+
+/sessions/{sessionId}/state:
+  get:
+    tags:
+      - 🔍 Session Diagnostics
+    summary: Get WhatsApp connection state
+    description: Returns detailed connection state information
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Connection state
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/battery:
+  get:
+    tags:
+      - 🔍 Session Diagnostics
+    summary: Get phone battery status
+    description: Returns battery level and charging status of connected phone
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Battery status
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'

@@ -1,0 +1,232 @@
+# Chat Management Endpoints
+
+/sessions/{sessionId}/chats:
+  get:
+    tags:
+      - 📊 Chats
+    summary: Get all chats
+    description: Retrieve list of all conversations
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: List of chats
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/chats/{chatId}:
+  get:
+    tags:
+      - 📊 Chats
+    summary: Get chat details
+    description: Retrieve detailed information about a specific chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Chat details
+  delete:
+    tags:
+      - 📊 Chats
+    summary: Delete chat
+    description: Delete a conversation
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Chat deleted
+
+/sessions/{sessionId}/chats/archive:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Archive/Unarchive chat
+    description: Archive or unarchive a conversation
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ArchiveChatDTO'
+    responses:
+      200:
+        description: Chat archived/unarchived
+
+/sessions/{sessionId}/chats/pin:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Pin/Unpin chat
+    description: Pin or unpin a conversation
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PinChatDTO'
+    responses:
+      200:
+        description: Chat pinned/unpinned
+
+/sessions/{sessionId}/chats/mute:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Mute/Unmute chat
+    description: Mute or unmute notifications from a chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MuteChatDTO'
+    responses:
+      200:
+        description: Chat muted/unmuted
+
+/sessions/{sessionId}/chats/{chatId}/mark-unread:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Mark as unread
+    description: Mark conversation as unread
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Marked as unread
+
+/sessions/{sessionId}/chats/{chatId}/send-seen:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Send seen/read receipt
+    description: Mark messages as read
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Marked as seen
+
+/sessions/{sessionId}/chats/{chatId}/send-typing:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Send typing indicator
+    description: Show typing indicator in chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Typing indicator sent
+
+/sessions/{sessionId}/chats/{chatId}/send-recording:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Send recording indicator
+    description: Show recording indicator in chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Recording indicator sent
+
+/sessions/{sessionId}/chats/{chatId}/clear:
+  post:
+    tags:
+      - 📊 Chats
+    summary: Clear chat history
+    description: Clear all messages from a chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Chat cleared

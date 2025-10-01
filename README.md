@@ -14,6 +14,7 @@
 - [Instalação](#instalação)
 - [Configuração](#configuração)
 - [Uso](#uso)
+- [Testes](#-testes)
 - [Documentação da API (Swagger)](#-documentação-da-api-swagger)
 - [API Endpoints](#api-endpoints)
 - [Estrutura do Projeto](#estrutura-do-projeto)
@@ -113,17 +114,212 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 ### Desenvolvimento
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ### Produção
 
 ```bash
 # Build
-npm run build
+pnpm run build
 
 # Start
-npm start
+pnpm start
+```
+
+## 🧪 Testes
+
+Este projeto possui uma suíte completa de testes automatizados e manuais para garantir a qualidade e funcionamento da API.
+
+### Estrutura de Testes
+
+```
+tests/
+├── unit/                    # Testes unitários
+│   ├── SessionRepository.test.ts
+│   ├── validators.test.ts
+│   └── ApiError.test.ts
+├── integration/             # Testes de integração
+│   └── sessions.test.ts
+├── manual/                  # Testes manuais interativos
+│   └── qr-tester.ts
+└── setup.ts                 # Configuração global dos testes
+```
+
+### Executar Testes Automatizados
+
+```bash
+# Executar todos os testes
+pnpm test
+
+# Executar testes em modo watch (desenvolvimento)
+pnpm run test:watch
+
+# Gerar relatório de cobertura
+pnpm run test:coverage
+```
+
+### Teste Manual Interativo
+
+Para testar a API completa com uma sessão real do WhatsApp:
+
+```bash
+# Executar testador interativo
+pnpm run test:manual
+```
+
+**O que o testador faz:**
+
+1. **Inicia uma sessão de teste** automaticamente
+2. **Exibe o QR Code** de 3 formas:
+   - ASCII no terminal (para visualização rápida)
+   - PNG no navegador (abre automaticamente)
+   - Links diretos para SVG e outros formatos
+3. **Aguarda você escanear** com seu WhatsApp
+4. **Cria um grupo de teste** (opcional) para não incomodar contatos reais
+5. **Executa testes básicos**:
+   - Listar conversas
+   - Listar contatos
+   - Obter perfil
+   - Status da bateria
+   - Enviar mensagem no grupo de teste
+6. **Oferece limpeza** da sessão ao final
+
+**Pré-requisitos para teste manual:**
+
+- ✅ Servidor rodando (`pnpm run dev` em outro terminal)
+- ✅ WhatsApp no celular pronto para escanear
+- ✅ Números de teste para criar grupo (opcional)
+
+**Exemplo de execução:**
+
+```bash
+# Terminal 1: Iniciar servidor
+pnpm run dev
+
+# Terminal 2: Executar testes
+pnpm run test:manual
+```
+
+### Tipos de Testes
+
+#### 1. Testes Unitários (`tests/unit/`)
+
+Testam componentes isolados sem dependências externas:
+
+- **SessionRepository**: Armazenamento e recuperação de sessões
+- **Validators**: Validação de IDs de chat, grupos, contatos
+- **ApiError**: Criação e tratamento de erros customizados
+
+```bash
+# Executar apenas testes unitários
+pnpm test -- tests/unit
+```
+
+#### 2. Testes de Integração (`tests/integration/`)
+
+Testam endpoints da API e fluxos completos:
+
+- **Sessions**: Inicialização, QR code, autenticação, destruição
+- **Messages**: Envio, mídia, reações, encaminhamento
+- **Chats**: Listagem, arquivamento, silenciamento
+- **Groups**: Criação, gerenciamento de participantes
+- **Contacts**: Listagem, bloqueio, validação
+- **Profile**: Atualização de perfil, foto, status
+
+```bash
+# Executar apenas testes de integração
+pnpm test -- tests/integration
+```
+
+#### 3. Testes Manuais (`tests/manual/`)
+
+Testes interativos que requerem ação humana:
+
+- **QR Tester**: Teste completo do fluxo de autenticação
+- Ideal para validar autenticação real
+- Útil para testar com sessões reais do WhatsApp
+
+### Configuração do Jest
+
+O projeto usa **Jest** com **TypeScript** (ts-jest):
+
+```javascript
+// jest.config.js
+{
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testTimeout: 30000,
+  roots: ['<rootDir>/tests'],
+  moduleNameMapper: {
+    '^@config/(.*)$': '<rootDir>/src/config/$1',
+    '^@services/(.*)$': '<rootDir>/src/services/$1',
+    // ... outros aliases
+  }
+}
+```
+
+**Características:**
+
+- ⏱️ Timeout de 30 segundos (operações WhatsApp podem ser lentas)
+- 🗺️ Suporte a path aliases (@config, @services, etc.)
+- 🔇 Logger mockado para não poluir output dos testes
+- 🧹 Limpeza automática de mocks após cada teste
+
+### Cobertura de Testes
+
+Para gerar relatório de cobertura:
+
+```bash
+pnpm run test:coverage
+```
+
+**Relatório inclui:**
+
+- Linhas cobertas por testes
+- Branches (if/else) testados
+- Funções testadas
+- Statements executados
+
+Relatório HTML gerado em: `coverage/index.html`
+
+### Boas Práticas de Teste
+
+Ao adicionar novos recursos, sempre:
+
+1. **Crie testes unitários** para funções isoladas
+2. **Crie testes de integração** para endpoints da API
+3. **Teste manualmente** fluxos críticos de autenticação
+4. **Mantenha alta cobertura** (mínimo 80%)
+5. **Use mocks** para evitar dependências externas
+6. **Documente casos especiais** em comentários
+
+### Troubleshooting
+
+**Testes falhando por timeout:**
+```bash
+# Aumentar timeout no jest.config.js
+testTimeout: 60000 // 60 segundos
+```
+
+**Erros de path alias:**
+```bash
+# Verificar se jest.config.js tem os mesmos aliases do tsconfig.json
+```
+
+**Servidor não conecta no teste manual:**
+```bash
+# Verificar se servidor está rodando
+curl http://localhost:3000/health
+
+# Verificar porta no .env
+PORT=3000
+```
+
+**QR Code não aparece:**
+```bash
+# Aguardar alguns segundos após inicializar
+# Status deve mudar: INITIALIZING → QR_CODE
 ```
 
 ## 📄 Documentação da API (Swagger)

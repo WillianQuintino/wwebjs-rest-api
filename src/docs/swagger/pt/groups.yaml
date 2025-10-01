@@ -1,0 +1,274 @@
+# Endpoints de Gerenciamento de Grupos
+
+/sessions/{sessionId}/groups:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Criar novo grupo
+    description: Cria um novo grupo do WhatsApp com participantes especificados
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateGroupDTO'
+    responses:
+      200:
+        description: Grupo criado com sucesso
+      400:
+        description: Requisição inválida
+
+/sessions/{sessionId}/groups/add-participants:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Adicionar participantes
+    description: Adiciona membros a um grupo existente
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participantes adicionados com sucesso
+
+/sessions/{sessionId}/groups/remove-participants:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Remover participantes
+    description: Remove membros de um grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participantes removidos com sucesso
+
+/sessions/{sessionId}/groups/promote-participants:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Promover a administrador
+    description: Promove participantes a administradores do grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participantes promovidos com sucesso
+
+/sessions/{sessionId}/groups/demote-participants:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Rebaixar de administrador
+    description: Rebaixa administradores do grupo a participantes regulares
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participantes rebaixados com sucesso
+
+/sessions/{sessionId}/groups/subject:
+  put:
+    tags:
+      - 👥 Grupos
+    summary: Atualizar nome do grupo
+    description: Altera o nome/assunto do grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateGroupSubjectDTO'
+    responses:
+      200:
+        description: Nome do grupo atualizado com sucesso
+
+/sessions/{sessionId}/groups/description:
+  put:
+    tags:
+      - 👥 Grupos
+    summary: Atualizar descrição do grupo
+    description: Altera a descrição do grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateGroupDescriptionDTO'
+    responses:
+      200:
+        description: Descrição do grupo atualizada com sucesso
+
+/sessions/{sessionId}/groups/picture:
+  put:
+    tags:
+      - 👥 Grupos
+    summary: Atualizar foto do grupo
+    description: Altera a foto de perfil do grupo (imagem base64)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - groupId
+              - media
+            properties:
+              groupId:
+                type: string
+                example: '123456789@g.us'
+              media:
+                $ref: '#/components/schemas/MediaData'
+    responses:
+      200:
+        description: Foto do grupo atualizada com sucesso
+
+/sessions/{sessionId}/groups/{groupId}/leave:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Sair do grupo
+    description: Sai de um chat de grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123456789@g.us'
+    responses:
+      200:
+        description: Saiu do grupo com sucesso
+
+/sessions/{sessionId}/groups/{groupId}/invite-code:
+  get:
+    tags:
+      - 👥 Grupos
+    summary: Obter link de convite
+    description: Obtém o código/link de convite do grupo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Código de convite recuperado com sucesso
+
+/sessions/{sessionId}/groups/{groupId}/revoke-invite:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Revogar link de convite
+    description: Revoga o link de convite atual e gera um novo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Link de convite revogado com sucesso
+
+/sessions/{sessionId}/groups/accept-invite:
+  post:
+    tags:
+      - 👥 Grupos
+    summary: Entrar em grupo via convite
+    description: Entra em um grupo usando um código de convite
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AcceptInviteDTO'
+    responses:
+      200:
+        description: Entrou no grupo com sucesso

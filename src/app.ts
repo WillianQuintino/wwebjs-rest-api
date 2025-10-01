@@ -5,7 +5,8 @@ import morgan from 'morgan';
 import 'express-async-errors';
 import swaggerUi from 'swagger-ui-express';
 
-import swaggerSpec from './config/swagger';
+import swaggerSpecEN from './config/swagger-en';
+import swaggerSpecPT from './config/swagger-pt';
 import { env, morganStream } from './config';
 import { errorHandler } from './middlewares';
 import routes from './routes';
@@ -62,10 +63,19 @@ class App {
       });
     });
 
-    // Swagger
-    if (env.isDevelopment) {
-      this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    }
+    // Swagger Documentation - English
+    this.app.use('/api-docs', swaggerUi.serve);
+    this.app.get('/api-docs', swaggerUi.setup(swaggerSpecEN, {
+      customSiteTitle: 'WhatsApp API Docs (EN)',
+      customCss: '.swagger-ui .topbar { display: none }',
+    }));
+
+    // Swagger Documentation - Portuguese
+    this.app.use('/api-docs/br', swaggerUi.serve);
+    this.app.get('/api-docs/br', swaggerUi.setup(swaggerSpecPT, {
+      customSiteTitle: 'Documentação API WhatsApp (PT-BR)',
+      customCss: '.swagger-ui .topbar { display: none }',
+    }));
 
     // 404 handler
     this.app.use((_req, res) => {

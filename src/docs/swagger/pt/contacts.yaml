@@ -1,0 +1,226 @@
+# Endpoints de Gerenciamento de Contatos
+
+/sessions/{sessionId}/contacts:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter todos os contatos
+    description: Recupera lista de todos os contatos do WhatsApp
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Lista de contatos
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/contacts/{contactId}:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter detalhes do contato
+    description: Recupera informações detalhadas sobre um contato específico
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '5511999999999@c.us'
+    responses:
+      200:
+        description: Detalhes do contato
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactResponse'
+
+/sessions/{sessionId}/contacts/{contactId}/profile-pic:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter foto de perfil
+    description: Recupera a URL da foto de perfil do contato
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: URL da foto de perfil
+
+/sessions/{sessionId}/contacts/{contactId}/about:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter status/sobre do contato
+    description: Recupera a mensagem de status do WhatsApp do contato
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Mensagem de status do contato
+
+/sessions/{sessionId}/contacts/{contactId}/common-groups:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter grupos em comum
+    description: Obtém lista de grupos que você compartilha com este contato
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Lista de grupos em comum
+
+/sessions/{sessionId}/contacts/{contactId}/block:
+  post:
+    tags:
+      - 📞 Contatos
+    summary: Bloquear contato
+    description: Bloqueia um contato do WhatsApp
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Contato bloqueado com sucesso
+
+/sessions/{sessionId}/contacts/{contactId}/unblock:
+  post:
+    tags:
+      - 📞 Contatos
+    summary: Desbloquear contato
+    description: Desbloqueia um contato previamente bloqueado
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Contato desbloqueado com sucesso
+
+/sessions/{sessionId}/contacts/validate-number:
+  post:
+    tags:
+      - 📞 Contatos
+    summary: Validar número de telefone
+    description: Verifica se um número de telefone está registrado no WhatsApp
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidateNumberDTO'
+    responses:
+      200:
+        description: Resultado da validação
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                data:
+                  type: object
+                  properties:
+                    exists:
+                      type: boolean
+                    jid:
+                      type: string
+
+/sessions/{sessionId}/contacts/blocked:
+  get:
+    tags:
+      - 📞 Contatos
+    summary: Obter contatos bloqueados
+    description: Recupera lista de todos os contatos bloqueados
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Lista de contatos bloqueados
+
+/sessions/{sessionId}/contacts/save:
+  post:
+    tags:
+      - 📞 Contatos
+    summary: Salvar contato
+    description: Salva um novo contato na agenda
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SaveContactDTO'
+    responses:
+      200:
+        description: Contato salvo com sucesso

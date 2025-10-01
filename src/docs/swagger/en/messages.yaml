@@ -1,0 +1,257 @@
+# Message Endpoints
+
+/sessions/{sessionId}/messages/send:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Send text message
+    description: Send a text message to a chat (individual or group)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMessageDTO'
+    responses:
+      200:
+        description: Message sent successfully
+      400:
+        description: Invalid request
+      404:
+        description: Session not found or not ready
+
+/sessions/{sessionId}/messages/send-media:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Send media file
+    description: Send image, video, audio, or document (base64 encoded)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMediaDTO'
+    responses:
+      200:
+        description: Media sent successfully
+      400:
+        description: Invalid media data
+
+/sessions/{sessionId}/messages/send-location:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Send location
+    description: Send GPS coordinates with optional name and address
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendLocationDTO'
+    responses:
+      200:
+        description: Location sent successfully
+
+/sessions/{sessionId}/messages/send-poll:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Send poll
+    description: Send interactive poll with multiple options
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendPollDTO'
+    responses:
+      200:
+        description: Poll sent successfully
+
+/sessions/{sessionId}/messages/react:
+  post:
+    tags:
+      - 💬 Messages
+    summary: React to message
+    description: Add emoji reaction to a message
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReactToMessageDTO'
+    responses:
+      200:
+        description: Reaction added successfully
+
+/sessions/{sessionId}/messages/forward:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Forward message
+    description: Forward a message from one chat to another
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForwardMessageDTO'
+    responses:
+      200:
+        description: Message forwarded successfully
+
+/sessions/{sessionId}/messages:
+  delete:
+    tags:
+      - 💬 Messages
+    summary: Delete message
+    description: Delete a message for me or for everyone
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeleteMessageDTO'
+    responses:
+      200:
+        description: Message deleted successfully
+
+/sessions/{sessionId}/messages/edit:
+  put:
+    tags:
+      - 💬 Messages
+    summary: Edit message
+    description: Edit a previously sent message (within 15 minutes)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EditMessageDTO'
+    responses:
+      200:
+        description: Message edited successfully
+
+/sessions/{sessionId}/messages/{chatId}:
+  get:
+    tags:
+      - 💬 Messages
+    summary: Fetch messages from chat
+    description: Retrieve message history from a specific chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: number
+          default: 50
+    responses:
+      200:
+        description: Messages retrieved successfully
+
+/sessions/{sessionId}/messages/search:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Search messages
+    description: Search for messages by text query
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SearchMessagesDTO'
+    responses:
+      200:
+        description: Search results
+
+/sessions/{sessionId}/messages/{chatId}/{messageId}/media:
+  get:
+    tags:
+      - 💬 Messages
+    summary: Download media
+    description: Download media content from a message (returns base64)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Media content (base64)

@@ -1,0 +1,213 @@
+# Endpoints de Gerenciamento de Sessão
+
+/sessions/{sessionId}/init:
+  post:
+    tags:
+      - 🔐 Gerenciamento de Sessão
+    summary: Inicializar sessão do WhatsApp
+    description: |
+      Cria e inicializa uma nova sessão do WhatsApp Web. Isso irá gerar um QR code que precisa ser escaneado com o aplicativo WhatsApp.
+
+      **Fluxo**: INITIALIZING → QR_CODE → AUTHENTICATING → READY
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Identificador único para esta sessão
+        example: minha-sessao
+    responses:
+      200:
+        description: Sessão inicializada com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      500:
+        description: Falha na inicialização
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/sessions/{sessionId}:
+  get:
+    tags:
+      - 🔐 Gerenciamento de Sessão
+    summary: Obter status da sessão
+    description: Recupera informações atuais da sessão incluindo status, disponibilidade do QR code e estado pronto
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Detalhes da sessão
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      404:
+        description: Sessão não encontrada
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  delete:
+    tags:
+      - 🔐 Gerenciamento de Sessão
+    summary: Destruir sessão
+    description: Destrói permanentemente a sessão e remove todos os dados associados
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Sessão destruída com sucesso
+      404:
+        description: Sessão não encontrada
+
+/sessions/{sessionId}/qr/image:
+  get:
+    tags:
+      - 📱 Acesso ao QR Code
+    summary: Obter QR code como imagem PNG
+    description: Retorna o QR code como uma imagem PNG para exibição web
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Imagem PNG do QR code
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      404:
+        description: QR code não disponível
+
+/sessions/{sessionId}/qr/svg:
+  get:
+    tags:
+      - 📱 Acesso ao QR Code
+    summary: Obter QR code como SVG
+    description: Retorna o QR code como gráfico vetorial escalável (SVG) para design responsivo
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: QR code SVG
+        content:
+          image/svg+xml:
+            schema:
+              type: string
+      404:
+        description: QR code não disponível
+
+/sessions/{sessionId}/qr/ascii:
+  get:
+    tags:
+      - 📱 Acesso ao QR Code
+    summary: Obter QR code como texto ASCII
+    description: Retorna o QR code como arte ASCII para exibição em terminal/console
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Texto ASCII do QR code
+        content:
+          text/plain:
+            schema:
+              type: string
+      404:
+        description: QR code não disponível
+
+/sessions:
+  get:
+    tags:
+      - 🔐 Gerenciamento de Sessão
+    summary: Listar todas as sessões
+    description: Retorna lista de todas as sessões ativas
+    responses:
+      200:
+        description: Lista de sessões
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/logout:
+  post:
+    tags:
+      - 🔐 Gerenciamento de Sessão
+    summary: Deslogar sessão
+    description: Desloga do WhatsApp Web mas mantém os dados da sessão
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Deslogado com sucesso
+      404:
+        description: Sessão não encontrada
+
+/sessions/{sessionId}/state:
+  get:
+    tags:
+      - 🔍 Diagnóstico de Sessão
+    summary: Obter estado da conexão WhatsApp
+    description: Retorna informações detalhadas sobre o estado da conexão
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Estado da conexão
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/battery:
+  get:
+    tags:
+      - 🔍 Diagnóstico de Sessão
+    summary: Obter status da bateria do telefone
+    description: Retorna nível de bateria e status de carregamento do telefone conectado
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Status da bateria
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'

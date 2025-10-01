@@ -1,0 +1,232 @@
+# Endpoints de Gerenciamento de Conversas
+
+/sessions/{sessionId}/chats:
+  get:
+    tags:
+      - 📊 Conversas
+    summary: Obter todas as conversas
+    description: Recupera lista de todas as conversas
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Lista de conversas
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+
+/sessions/{sessionId}/chats/{chatId}:
+  get:
+    tags:
+      - 📊 Conversas
+    summary: Obter detalhes da conversa
+    description: Recupera informações detalhadas sobre uma conversa específica
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Detalhes da conversa
+  delete:
+    tags:
+      - 📊 Conversas
+    summary: Deletar conversa
+    description: Deleta uma conversa
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Conversa deletada
+
+/sessions/{sessionId}/chats/archive:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Arquivar/Desarquivar conversa
+    description: Arquiva ou desarquiva uma conversa
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ArchiveChatDTO'
+    responses:
+      200:
+        description: Conversa arquivada/desarquivada
+
+/sessions/{sessionId}/chats/pin:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Fixar/Desafixar conversa
+    description: Fixa ou desafixa uma conversa
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PinChatDTO'
+    responses:
+      200:
+        description: Conversa fixada/desafixada
+
+/sessions/{sessionId}/chats/mute:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Silenciar/Ativar notificações
+    description: Silencia ou ativa notificações de uma conversa
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MuteChatDTO'
+    responses:
+      200:
+        description: Conversa silenciada/ativada
+
+/sessions/{sessionId}/chats/{chatId}/mark-unread:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Marcar como não lida
+    description: Marca conversa como não lida
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Marcada como não lida
+
+/sessions/{sessionId}/chats/{chatId}/send-seen:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Enviar confirmação de leitura
+    description: Marca mensagens como lidas
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Marcado como visto
+
+/sessions/{sessionId}/chats/{chatId}/send-typing:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Enviar indicador de digitação
+    description: Mostra indicador de digitação no chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Indicador de digitação enviado
+
+/sessions/{sessionId}/chats/{chatId}/send-recording:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Enviar indicador de gravação
+    description: Mostra indicador de gravação no chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Indicador de gravação enviado
+
+/sessions/{sessionId}/chats/{chatId}/clear:
+  post:
+    tags:
+      - 📊 Conversas
+    summary: Limpar histórico de conversa
+    description: Limpa todas as mensagens de uma conversa
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Conversa limpa

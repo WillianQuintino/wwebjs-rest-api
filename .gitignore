@@ -2,24 +2,32 @@
 node_modules/
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
 # Build
 dist/
 build/
 *.tsbuildinfo
+*.js.map
 
 # Environment
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+.env.test
 
-# Sessions
+# Sessions (WhatsApp Web.js)
 sessions/
 .wwebjs_auth/
 .wwebjs_cache/
+*.data.json
 
 # Uploads
 uploads/
+temp/
+tmp/
 
 # Logs
 logs/
@@ -27,25 +35,57 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 *.swp
 *.swo
 *~
+desktop.ini
 
 # IDE
 .vscode/
+!.vscode/extensions.json
 .idea/
 *.sublime-project
 *.sublime-workspace
+*.code-workspace
+.vscode-test
 
 # Testing
 coverage/
 .nyc_output/
+*.lcov
+.jest/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
 
 # Misc
 *.pid
 *.seed
 *.pid.lock
+.npm
+.yarn
+
+# Debug
+debug.log
+.vscode-test
+
+# Local development
+.local/

@@ -23,8 +23,16 @@ npm start
 
 **Linting and formatting:**
 ```bash
-npm run lint
-npm run format
+pnpm run lint
+pnpm run format
+```
+
+**Testing:**
+```bash
+pnpm test                 # Run all tests
+pnpm run test:watch       # Run tests in watch mode
+pnpm run test:coverage    # Generate coverage report
+pnpm run test:manual      # Run interactive manual tests
 ```
 
 ## Architecture Overview
@@ -132,6 +140,8 @@ Required environment variables in `.env`:
 
 ## Adding New Features
 
+**IMPORTANT: Every new route MUST have Swagger documentation created.**
+
 **To add a new WhatsApp operation:**
 
 1. Add DTO interface in `src/models/I{Domain}.ts`
@@ -139,6 +149,9 @@ Required environment variables in `.env`:
 3. Add controller method in `src/controllers/{Domain}Controller.ts`
 4. Add route in `src/routes/index.ts`
 5. Export new types in `src/models/index.ts`
+6. **Add Swagger documentation** in `src/docs/swagger/en/{domain}.yaml` (English)
+7. **Add Swagger documentation** in `src/docs/swagger/pt/{domain}.yaml` (Portuguese)
+8. **Add DTO schema** in `src/config/swagger-en.ts` and `src/config/swagger-pt.ts` (if needed)
 
 **Example - Adding "star message" feature:**
 
@@ -174,6 +187,92 @@ async star(req: Request, res: Response) {
 router.post('/sessions/:sessionId/messages/star', asyncHandler(messageController.star.bind(messageController)));
 ```
 
+5. `src/docs/swagger/en/messages.yaml`:
+```yaml
+/sessions/{sessionId}/messages/star:
+  post:
+    tags:
+      - 💬 Messages
+    summary: Star message
+    description: Star or unstar a message
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StarMessageDTO'
+    responses:
+      200:
+        description: Message starred successfully
+```
+
+6. `src/docs/swagger/pt/messages.yaml`:
+```yaml
+/sessions/{sessionId}/messages/star:
+  post:
+    tags:
+      - 💬 Mensagens
+    summary: Favoritar mensagem
+    description: Favorita ou desfavorita uma mensagem
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StarMessageDTO'
+    responses:
+      200:
+        description: Mensagem favoritada com sucesso
+```
+
+7. `src/config/swagger-en.ts` and `src/config/swagger-pt.ts`:
+```typescript
+// Add to schemas:
+StarMessageDTO: {
+  type: 'object',
+  required: ['chatId', 'messageId', 'star'],
+  properties: {
+    chatId: { type: 'string', example: '5511999999999@c.us' },
+    messageId: { type: 'string' },
+    star: { type: 'boolean', description: 'true to star, false to unstar' }
+  }
+}
+```
+
+## Swagger Documentation
+
+**Access Documentation:**
+- **English**: http://localhost:3000/api-docs
+- **Portuguese**: http://localhost:3000/api-docs/br
+
+**Documentation Structure:**
+- All documentation is in YAML files under `src/docs/swagger/en/` and `src/docs/swagger/pt/`
+- Schemas are defined in `src/config/swagger-en.ts` and `src/config/swagger-pt.ts`
+- Documentation is kept separate from code to avoid pollution
+- Both EN and PT versions must be maintained for every endpoint
+
+**Coverage:**
+- ✅ Session Management (10 endpoints)
+- ✅ Messages (10 endpoints)
+- ✅ Chats (11 endpoints)
+- ✅ Groups (12 endpoints)
+- ✅ Contacts (10 endpoints)
+- ✅ Profile (5 endpoints)
+
+See `README-SWAGGER.md` for detailed documentation guide.
+
 ## Testing the API
 
 Use examples from `EXAMPLES.md`. Basic flow:
@@ -183,10 +282,303 @@ Use examples from `EXAMPLES.md`. Basic flow:
 3. Check status: `GET /api/v1/sessions/my-session` (wait for `READY`)
 4. Send message: `POST /api/v1/sessions/my-session/messages/send`
 
+Or use Swagger UI at http://localhost:3000/api-docs to test directly.
+
+## Documentation Guidelines
+
+**IMPORTANT: This project keeps code clean by separating documentation**
+
+### API Documentation (Swagger)
+- **Location**: `src/docs/swagger/en/*.yaml` and `src/docs/swagger/pt/*.yaml`
+- **Purpose**: Document REST API endpoints for external consumers
+- **Languages**: English and Portuguese (both required)
+- **Access**: http://localhost:3000/api-docs (EN) | http://localhost:3000/api-docs/br (PT)
+
+### Internal Code Documentation
+- **Location**: `docs/internal/*.md`
+- **Purpose**: Document internal functions, services, utilities for developers
+- **Format**: Clear Markdown with examples
+- **NO CODE POLLUTION**: Never add documentation comments in TypeScript files
+
+### When Adding New Code
+
+**For API Endpoints (Public)**:
+1. Write clean code in controllers (NO comments)
+2. Document in `src/docs/swagger/en/[domain].yaml`
+3. Document in `src/docs/swagger/pt/[domain].yaml`
+4. Add schemas to `src/config/swagger-en.ts` and `src/config/swagger-pt.ts`
+
+**For Internal Functions (Private)**:
+1. Write clean code (NO comments)
+2. Document in `docs/internal/SERVICES.md` (or UTILS.md, MODELS.md)
+3. Include: file path, description, parameters, return value, examples
+
+**Example Internal Documentation**:
+```markdown
+### `functionName(param1, param2)`
+
+**File**: `src/services/MyService.ts:45`
+
+**What it does**: Brief clear description
+
+**When to use**: Specific use cases
+
+**Parameters**:
+- `param1` (type): Description
+- `param2` (type): Description
+
+**Returns**: `ReturnType` - Description
+
+**Example**:
+\`\`\`typescript
+const result = await service.functionName('value', 123);
+\`\`\`
+```
+
+## Testing Guidelines
+
+**IMPORTANT: Every new feature MUST have tests**
+
+### Test Structure
+
+```
+tests/
+├── unit/                    # Unit tests (isolated components)
+├── integration/             # Integration tests (API endpoints)
+├── manual/                  # Manual interactive tests
+└── setup.ts                 # Global test configuration
+```
+
+### Creating Tests for New Features
+
+When adding a new feature, create tests in this order:
+
+#### 1. Unit Tests (`tests/unit/`)
+
+Test isolated functions and classes:
+
+```typescript
+// tests/unit/MyService.test.ts
+import { MyService } from '@services/MyService';
+
+describe('MyService', () => {
+  let service: MyService;
+
+  beforeEach(() => {
+    service = MyService.getInstance();
+  });
+
+  describe('myMethod', () => {
+    it('should return expected value', () => {
+      const result = service.myMethod('input');
+      expect(result).toBe('expected');
+    });
+
+    it('should throw error for invalid input', () => {
+      expect(() => service.myMethod('')).toThrow();
+    });
+  });
+});
+```
+
+**What to test:**
+- Service methods (business logic)
+- Validators (input validation)
+- Formatters (data transformation)
+- Utilities (helper functions)
+- Error handling
+
+#### 2. Integration Tests (`tests/integration/`)
+
+Test API endpoints and complete flows:
+
+```typescript
+// tests/integration/myFeature.test.ts
+import request from 'supertest';
+import { App } from '@config/app';
+
+describe('My Feature API', () => {
+  let app: any;
+  const testSessionId = 'test-session-' + Date.now();
+
+  beforeAll(() => {
+    const appInstance = new App();
+    app = appInstance.getApp();
+  });
+
+  describe('POST /api/v1/my-endpoint', () => {
+    it('should create resource successfully', async () => {
+      const response = await request(app)
+        .post(`/api/v1/sessions/${testSessionId}/my-endpoint`)
+        .send({ data: 'value' })
+        .expect(201);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.data).toHaveProperty('id');
+    });
+
+    it('should return validation error', async () => {
+      const response = await request(app)
+        .post(`/api/v1/sessions/${testSessionId}/my-endpoint`)
+        .send({ invalid: 'data' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error.code).toBe('BAD_REQUEST');
+    });
+  });
+});
+```
+
+**What to test:**
+- HTTP status codes
+- Response structure
+- Request validation
+- Error responses
+- Authentication flows
+- Complete user journeys
+
+#### 3. Manual Tests (`tests/manual/`)
+
+For features requiring human interaction:
+
+```typescript
+// tests/manual/my-feature-tester.ts
+async function testMyFeature() {
+  console.log('🧪 Testing My Feature');
+
+  // 1. Setup
+  const session = await initializeSession();
+
+  // 2. User interaction
+  await waitForUserInput('Please complete action X');
+
+  // 3. Verification
+  const result = await verifyFeature(session);
+
+  console.log(result ? '✅ Test passed' : '❌ Test failed');
+}
+```
+
+**When to use:**
+- QR code authentication flows
+- Real WhatsApp interactions
+- Features requiring phone verification
+- Complex multi-step workflows
+
+### Test Configuration
+
+**Jest Setup** (`jest.config.js`):
+- Timeout: 30000ms (WhatsApp operations can be slow)
+- Test environment: node
+- Path aliases: Same as tsconfig.json
+- Coverage: src/**/*.ts (excluding .d.ts and server.ts)
+
+**Global Setup** (`tests/setup.ts`):
+- Mock logger to avoid console pollution
+- Clear mocks after each test
+- Global timeout configuration
+
+### Running Tests
+
+```bash
+# All tests
+pnpm test
+
+# Specific test file
+pnpm test -- SessionRepository.test.ts
+
+# Watch mode (development)
+pnpm run test:watch
+
+# Coverage report
+pnpm run test:coverage
+
+# Manual interactive tests
+pnpm run test:manual
+```
+
+### Test Coverage Standards
+
+**Minimum coverage requirements:**
+- Overall: 80%
+- Critical paths: 100%
+- Services: 90%
+- Controllers: 85%
+- Utils/Validators: 95%
+
+### Testing Best Practices
+
+✅ **Do:**
+- Test one thing per test case
+- Use descriptive test names
+- Mock external dependencies
+- Test both success and error cases
+- Keep tests independent
+- Use beforeEach/afterEach for cleanup
+- Test edge cases
+
+❌ **Don't:**
+- Test implementation details
+- Create interdependent tests
+- Use real WhatsApp sessions in unit tests
+- Skip error case testing
+- Hardcode test data
+- Leave console.log statements
+
+### Example: Complete Test Suite for New Feature
+
+When adding "star message" feature:
+
+**1. Unit Test** (`tests/unit/MessageService.test.ts`):
+```typescript
+describe('MessageService.starMessage', () => {
+  it('should star message successfully', async () => {
+    // Test isolated business logic
+  });
+
+  it('should throw error for invalid messageId', async () => {
+    // Test error handling
+  });
+});
+```
+
+**2. Integration Test** (`tests/integration/messages.test.ts`):
+```typescript
+describe('POST /sessions/:sessionId/messages/star', () => {
+  it('should star message via API', async () => {
+    const response = await request(app)
+      .post(`/api/v1/sessions/${sessionId}/messages/star`)
+      .send({ chatId: 'test@c.us', messageId: 'msg123', star: true })
+      .expect(200);
+  });
+});
+```
+
+**3. Manual Test** (if needed):
+```bash
+# Test with real WhatsApp session
+pnpm run test:manual
+# Follow prompts to test starring messages
+```
+
+### Continuous Integration
+
+Tests run automatically:
+- Before commits (pre-commit hook)
+- On pull requests
+- Before deployment
+
+Ensure all tests pass before pushing code.
+
 ## Common Pitfalls
 
 - **Don't instantiate services directly** - Always use singleton instances exported from service files
 - **Don't bypass getClient()** - Always use `whatsAppClientService.getClient(sessionId)` instead of accessing repository directly
 - **Don't forget .bind(controller)** - Route handlers must bind controller context: `.bind(clientController)`
 - **Don't hardcode sessionId** - Session ID must always come from route params or request body
-- **Path aliases don't work at runtime** - TypeScript compiles them to relative paths. Use npm run build to test production code.
+- **Path aliases don't work at runtime** - TypeScript compiles them to relative paths. Use pnpm run build to test production code
+- **Don't add documentation in code** - Use separate YAML (API) or Markdown (internal) files
+- **Don't document only in English** - Always update both EN and PT Swagger docs
+- **Don't skip tests** - Every new feature must have unit and integration tests
+- **Don't use real sessions in automated tests** - Use mocks for WhatsApp client in unit tests

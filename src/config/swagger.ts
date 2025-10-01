@@ -1,5 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import { name, version, description } from '../../package.json';
+import { version, description } from '../../package.json';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -158,6 +158,460 @@ WhatsApp enforces rate limits. Please send messages responsibly.
           type: 'string',
           enum: ['INITIALIZING', 'QR_CODE', 'AUTHENTICATING', 'READY', 'DISCONNECTED', 'ERROR'],
           description: 'Current session status in the authentication flow'
+        },
+        SendMessageDTO: {
+          type: 'object',
+          required: ['chatId', 'content'],
+          properties: {
+            chatId: {
+              type: 'string',
+              description: 'Chat ID (5511999999999@c.us for individual, 123456789@g.us for group)',
+              example: '5511999999999@c.us'
+            },
+            content: {
+              type: 'string',
+              description: 'Message text content',
+              example: 'Hello, WhatsApp!'
+            },
+            options: {
+              $ref: '#/components/schemas/SendMessageOptions'
+            }
+          }
+        },
+        SendMessageOptions: {
+          type: 'object',
+          properties: {
+            quotedMessageId: {
+              type: 'string',
+              description: 'ID of message to quote/reply'
+            },
+            mentions: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description: 'Array of contact IDs to mention'
+            },
+            linkPreview: {
+              type: 'boolean',
+              description: 'Enable/disable link preview',
+              default: true
+            }
+          }
+        },
+        SendMediaDTO: {
+          type: 'object',
+          required: ['chatId', 'media'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            media: {
+              $ref: '#/components/schemas/MediaData'
+            },
+            options: {
+              $ref: '#/components/schemas/SendMessageOptions'
+            }
+          }
+        },
+        MediaData: {
+          type: 'object',
+          required: ['mimetype', 'data'],
+          properties: {
+            mimetype: {
+              type: 'string',
+              description: 'MIME type of the file',
+              example: 'image/jpeg'
+            },
+            data: {
+              type: 'string',
+              format: 'base64',
+              description: 'Base64-encoded file data'
+            },
+            filename: {
+              type: 'string',
+              description: 'Optional filename',
+              example: 'photo.jpg'
+            }
+          }
+        },
+        SendLocationDTO: {
+          type: 'object',
+          required: ['chatId', 'latitude', 'longitude'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            latitude: {
+              type: 'number',
+              format: 'double',
+              example: -23.550520
+            },
+            longitude: {
+              type: 'number',
+              format: 'double',
+              example: -46.633308
+            },
+            name: {
+              type: 'string',
+              example: 'São Paulo Cathedral'
+            },
+            address: {
+              type: 'string',
+              example: 'Praça da Sé - Sé, São Paulo - SP'
+            }
+          }
+        },
+        SendPollDTO: {
+          type: 'object',
+          required: ['chatId', 'question', 'options'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            question: {
+              type: 'string',
+              example: 'What is your favorite programming language?'
+            },
+            options: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              example: ['JavaScript', 'Python', 'TypeScript', 'Go']
+            },
+            allowMultipleAnswers: {
+              type: 'boolean',
+              default: false
+            }
+          }
+        },
+        ReactToMessageDTO: {
+          type: 'object',
+          required: ['messageId', 'chatId', 'emoji'],
+          properties: {
+            messageId: {
+              type: 'string',
+              description: 'ID of the message to react to'
+            },
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            emoji: {
+              type: 'string',
+              description: 'Emoji to react with',
+              example: '👍'
+            }
+          }
+        },
+        ForwardMessageDTO: {
+          type: 'object',
+          required: ['messageId', 'sourceChatId', 'targetChatId'],
+          properties: {
+            messageId: {
+              type: 'string'
+            },
+            sourceChatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            targetChatId: {
+              type: 'string',
+              example: '5511888888888@c.us'
+            }
+          }
+        },
+        DeleteMessageDTO: {
+          type: 'object',
+          required: ['messageId', 'chatId', 'deleteForEveryone'],
+          properties: {
+            messageId: {
+              type: 'string'
+            },
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            deleteForEveryone: {
+              type: 'boolean',
+              description: 'Delete for everyone or just for me',
+              default: false
+            }
+          }
+        },
+        EditMessageDTO: {
+          type: 'object',
+          required: ['messageId', 'chatId', 'newContent'],
+          properties: {
+            messageId: {
+              type: 'string'
+            },
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            newContent: {
+              type: 'string',
+              example: 'Updated message text'
+            }
+          }
+        },
+        SearchMessagesDTO: {
+          type: 'object',
+          required: ['query'],
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query text',
+              example: 'hello'
+            },
+            chatId: {
+              type: 'string',
+              description: 'Optional: limit search to specific chat'
+            },
+            limit: {
+              type: 'number',
+              default: 50
+            }
+          }
+        },
+        ChatResponse: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            },
+            name: {
+              type: 'string'
+            },
+            isGroup: {
+              type: 'boolean'
+            },
+            isReadOnly: {
+              type: 'boolean'
+            },
+            unreadCount: {
+              type: 'number'
+            },
+            timestamp: {
+              type: 'number'
+            },
+            archived: {
+              type: 'boolean'
+            },
+            pinned: {
+              type: 'boolean'
+            },
+            isMuted: {
+              type: 'boolean'
+            }
+          }
+        },
+        ArchiveChatDTO: {
+          type: 'object',
+          required: ['chatId', 'archive'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            archive: {
+              type: 'boolean',
+              description: 'true to archive, false to unarchive'
+            }
+          }
+        },
+        PinChatDTO: {
+          type: 'object',
+          required: ['chatId', 'pin'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            pin: {
+              type: 'boolean',
+              description: 'true to pin, false to unpin'
+            }
+          }
+        },
+        MuteChatDTO: {
+          type: 'object',
+          required: ['chatId', 'mute'],
+          properties: {
+            chatId: {
+              type: 'string',
+              example: '5511999999999@c.us'
+            },
+            mute: {
+              type: 'boolean',
+              description: 'true to mute, false to unmute'
+            },
+            duration: {
+              type: 'number',
+              description: 'Duration in seconds (only when muting)'
+            }
+          }
+        },
+        CreateGroupDTO: {
+          type: 'object',
+          required: ['name', 'participantIds'],
+          properties: {
+            name: {
+              type: 'string',
+              example: 'My WhatsApp Group'
+            },
+            participantIds: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              example: ['5511999999999@c.us', '5511888888888@c.us']
+            }
+          }
+        },
+        AddParticipantsDTO: {
+          type: 'object',
+          required: ['groupId', 'participantIds'],
+          properties: {
+            groupId: {
+              type: 'string',
+              example: '123456789@g.us'
+            },
+            participantIds: {
+              type: 'array',
+              items: {
+                type: 'string'
+              }
+            }
+          }
+        },
+        UpdateGroupSubjectDTO: {
+          type: 'object',
+          required: ['groupId', 'subject'],
+          properties: {
+            groupId: {
+              type: 'string',
+              example: '123456789@g.us'
+            },
+            subject: {
+              type: 'string',
+              example: 'New Group Name'
+            }
+          }
+        },
+        UpdateGroupDescriptionDTO: {
+          type: 'object',
+          required: ['groupId', 'description'],
+          properties: {
+            groupId: {
+              type: 'string',
+              example: '123456789@g.us'
+            },
+            description: {
+              type: 'string',
+              example: 'This is a group description'
+            }
+          }
+        },
+        AcceptInviteDTO: {
+          type: 'object',
+          required: ['inviteCode'],
+          properties: {
+            inviteCode: {
+              type: 'string',
+              description: 'WhatsApp group invite code',
+              example: 'ABC123DEF456'
+            }
+          }
+        },
+        ContactResponse: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            },
+            name: {
+              type: 'string'
+            },
+            pushname: {
+              type: 'string'
+            },
+            number: {
+              type: 'string'
+            },
+            isBusiness: {
+              type: 'boolean'
+            },
+            isMyContact: {
+              type: 'boolean'
+            },
+            isBlocked: {
+              type: 'boolean'
+            }
+          }
+        },
+        ValidateNumberDTO: {
+          type: 'object',
+          required: ['number'],
+          properties: {
+            number: {
+              type: 'string',
+              description: 'Phone number to validate',
+              example: '5511999999999'
+            }
+          }
+        },
+        SaveContactDTO: {
+          type: 'object',
+          required: ['phoneNumber', 'firstName'],
+          properties: {
+            phoneNumber: {
+              type: 'string',
+              example: '5511999999999'
+            },
+            firstName: {
+              type: 'string',
+              example: 'John'
+            },
+            lastName: {
+              type: 'string',
+              example: 'Doe'
+            }
+          }
+        },
+        SetProfileNameDTO: {
+          type: 'object',
+          required: ['displayName'],
+          properties: {
+            displayName: {
+              type: 'string',
+              example: 'My New Name'
+            }
+          }
+        },
+        SetProfileStatusDTO: {
+          type: 'object',
+          required: ['status'],
+          properties: {
+            status: {
+              type: 'string',
+              example: 'Available'
+            }
+          }
+        },
+        SetProfilePictureDTO: {
+          type: 'object',
+          required: ['media'],
+          properties: {
+            media: {
+              $ref: '#/components/schemas/MediaData'
+            }
+          }
         }
       }
     }

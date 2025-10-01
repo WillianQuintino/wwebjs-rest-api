@@ -1,0 +1,149 @@
+# Profile Management Endpoints
+
+/sessions/{sessionId}/profile:
+  get:
+    tags:
+      - 🎭 Profile
+    summary: Get my profile
+    description: Retrieve your WhatsApp profile information
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Profile information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                data:
+                  type: object
+                  properties:
+                    me:
+                      type: string
+                    phone:
+                      type: string
+                    platform:
+                      type: string
+                    pushname:
+                      type: string
+                    wid:
+                      type: string
+
+/sessions/{sessionId}/profile/name:
+  put:
+    tags:
+      - 🎭 Profile
+    summary: Update display name
+    description: Change your WhatsApp display name
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SetProfileNameDTO'
+    responses:
+      200:
+        description: Name updated successfully
+
+/sessions/{sessionId}/profile/status:
+  put:
+    tags:
+      - 🎭 Profile
+    summary: Update status message
+    description: Change your WhatsApp status/about message
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SetProfileStatusDTO'
+    responses:
+      200:
+        description: Status updated successfully
+
+/sessions/{sessionId}/profile/picture:
+  put:
+    tags:
+      - 🎭 Profile
+    summary: Update profile picture
+    description: Change your WhatsApp profile picture (base64 image)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SetProfilePictureDTO'
+    responses:
+      200:
+        description: Picture updated successfully
+  delete:
+    tags:
+      - 🎭 Profile
+    summary: Remove profile picture
+    description: Delete your current profile picture
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Picture removed successfully
+
+/sessions/{sessionId}/profile/battery:
+  get:
+    tags:
+      - 🎭 Profile
+    summary: Get battery status
+    description: Get phone battery level and charging status
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Battery status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                data:
+                  type: object
+                  properties:
+                    battery:
+                      type: number
+                      description: Battery percentage (0-100)
+                    plugged:
+                      type: boolean
+                      description: Whether phone is charging

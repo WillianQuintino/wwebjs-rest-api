@@ -1,0 +1,274 @@
+# Group Management Endpoints
+
+/sessions/{sessionId}/groups:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Create new group
+    description: Create a new WhatsApp group with specified participants
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateGroupDTO'
+    responses:
+      200:
+        description: Group created successfully
+      400:
+        description: Invalid request
+
+/sessions/{sessionId}/groups/add-participants:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Add participants
+    description: Add members to an existing group
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participants added successfully
+
+/sessions/{sessionId}/groups/remove-participants:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Remove participants
+    description: Remove members from a group
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participants removed successfully
+
+/sessions/{sessionId}/groups/promote-participants:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Promote to admin
+    description: Promote participants to group admin
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participants promoted successfully
+
+/sessions/{sessionId}/groups/demote-participants:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Demote from admin
+    description: Demote group admins to regular participants
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddParticipantsDTO'
+    responses:
+      200:
+        description: Participants demoted successfully
+
+/sessions/{sessionId}/groups/subject:
+  put:
+    tags:
+      - 👥 Groups
+    summary: Update group name
+    description: Change the group's name/subject
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateGroupSubjectDTO'
+    responses:
+      200:
+        description: Group name updated successfully
+
+/sessions/{sessionId}/groups/description:
+  put:
+    tags:
+      - 👥 Groups
+    summary: Update group description
+    description: Change the group's description
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateGroupDescriptionDTO'
+    responses:
+      200:
+        description: Group description updated successfully
+
+/sessions/{sessionId}/groups/picture:
+  put:
+    tags:
+      - 👥 Groups
+    summary: Update group picture
+    description: Change the group's profile picture (base64 image)
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - groupId
+              - media
+            properties:
+              groupId:
+                type: string
+                example: '123456789@g.us'
+              media:
+                $ref: '#/components/schemas/MediaData'
+    responses:
+      200:
+        description: Group picture updated successfully
+
+/sessions/{sessionId}/groups/{groupId}/leave:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Leave group
+    description: Leave a group chat
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123456789@g.us'
+    responses:
+      200:
+        description: Left group successfully
+
+/sessions/{sessionId}/groups/{groupId}/invite-code:
+  get:
+    tags:
+      - 👥 Groups
+    summary: Get invite link
+    description: Get the group's invite code/link
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Invite code retrieved successfully
+
+/sessions/{sessionId}/groups/{groupId}/revoke-invite:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Revoke invite link
+    description: Revoke the current invite link and generate a new one
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: Invite link revoked successfully
+
+/sessions/{sessionId}/groups/accept-invite:
+  post:
+    tags:
+      - 👥 Groups
+    summary: Join group via invite
+    description: Join a group using an invite code
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AcceptInviteDTO'
+    responses:
+      200:
+        description: Joined group successfully

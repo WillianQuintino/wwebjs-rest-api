@@ -14,6 +14,7 @@
 - [Instalação](#instalação)
 - [Configuração](#configuração)
 - [Uso](#uso)
+- [Documentação da API (Swagger)](#-documentação-da-api-swagger)
 - [API Endpoints](#api-endpoints)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Tecnologias](#tecnologias)
@@ -124,6 +125,23 @@ npm run build
 # Start
 npm start
 ```
+
+## 📄 Documentação da API (Swagger)
+
+Este projeto utiliza Swagger para gerar uma documentação da API interativa e fácil de usar.
+
+Para acessar a documentação:
+
+1. Inicie o servidor em modo de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+2. Abra seu navegador e acesse a seguinte URL:
+   ```
+   http://localhost:3000/docs
+   ```
+
+Você verá a interface do Swagger UI, onde poderá explorar todos os endpoints, ver os parâmetros necessários, os corpos de requisição e até mesmo testar as chamadas de API diretamente pelo navegador.
 
 ## 📡 API Endpoints
 

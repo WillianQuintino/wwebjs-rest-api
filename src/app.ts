@@ -3,7 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import 'express-async-errors';
+import swaggerUi from 'swagger-ui-express';
 
+import swaggerSpec from './config/swagger';
 import { env, logger, morganStream } from './config';
 import { errorHandler } from './middlewares';
 import routes from './routes';
@@ -59,6 +61,11 @@ class App {
         documentation: '/api/v1/health',
       });
     });
+
+    // Swagger
+    if (env.isDevelopment) {
+      this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    }
 
     // 404 handler
     this.app.use((_req, res) => {

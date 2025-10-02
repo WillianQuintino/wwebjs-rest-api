@@ -73,7 +73,7 @@ export class ClientController {
   }
 
   
-  async getAllSessions(req: Request, res: Response) {
+  async getAllSessions(_req: Request, res: Response) {
     const sessions = whatsAppClientService.getAllSessions();
     return ApiResponse.success(res, sessions);
   }

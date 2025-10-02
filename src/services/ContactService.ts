@@ -1,5 +1,5 @@
 import { whatsAppClientService } from './WhatsAppClientService';
-import { Validators, Formatters, ApiError } from '../utils';
+import { Validators, Formatters } from '../utils';
 import { logger } from '../config';
 import { IContactResponse, IValidateNumberDTO, INumberValidationResponse, ISaveContactDTO } from '../models';
 
@@ -28,7 +28,8 @@ export class ContactService {
     Validators.validateChatId(contactId);
     const client = whatsAppClientService.getClient(sessionId);
     const contact = await client.getContactById(contactId);
-    return await contact.getAbout();
+    const about = await contact.getAbout();
+    return about ?? undefined;
   }
 
   async getCommonGroups(sessionId: string, contactId: string): Promise<any[]> {

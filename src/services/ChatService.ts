@@ -1,5 +1,5 @@
 import { whatsAppClientService } from './WhatsAppClientService';
-import { Validators, Formatters, ApiError } from '../utils';
+import { Validators, Formatters } from '../utils';
 import { logger } from '../config';
 import { IChatResponse, IArchiveChatDTO, IPinChatDTO, IMuteChatDTO } from '../models';
 

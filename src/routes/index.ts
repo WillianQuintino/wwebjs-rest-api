@@ -9,7 +9,7 @@ import {
   profileController
 } from '../controllers';
 
-const router = Router();
+const router: Router = Router();
 
 // ===== CLIENT ROUTES =====
 router.post('/sessions/:sessionId/init', asyncHandler(clientController.initializeSession.bind(clientController)));
@@ -85,7 +85,7 @@ router.delete('/sessions/:sessionId/profile/picture', asyncHandler(profileContro
 router.get('/sessions/:sessionId/profile/battery', asyncHandler(profileController.getBattery.bind(profileController)));
 
 // Health check
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

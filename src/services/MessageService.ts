@@ -98,9 +98,12 @@ export class MessageService {
     const client = whatsAppClientService.getClient(sessionId);
 
     try {
-      const poll = new Poll(data.question, data.options, {
+      const pollOptions: any = {
         allowMultipleAnswers: data.allowMultipleAnswers,
-      });
+        messageSecret: Buffer.from('messageSecret').toString('base64')
+      };
+      
+      const poll = new Poll(data.question, data.options, pollOptions);
 
       const message = await client.sendMessage(data.chatId, poll);
       logger.info(`Poll sent to ${data.chatId} from session ${sessionId}`);
@@ -155,10 +158,11 @@ export class MessageService {
       }
 
       const targetChat = await client.getChatById(data.targetChatId);
-      const forwardedMessage = await message.forward(targetChat);
+      await message.forward(targetChat);
 
       logger.info(`Message forwarded from ${data.sourceChatId} to ${data.targetChatId}`);
-      return Formatters.formatMessage(forwardedMessage);
+      // Retorna a mensagem original já que forward pode retornar void
+      return Formatters.formatMessage(message);
     } catch (error) {
       logger.error(`Error forwarding message:`, error);
       throw ApiError.internal(`Failed to forward message: ${error}`);
@@ -209,6 +213,12 @@ export class MessageService {
 
       const editedMessage = await message.edit(data.newContent);
       logger.info(`Message ${data.messageId} edited in ${data.chatId}`);
+      
+      // Verifica se editedMessage não é null
+      if (!editedMessage) {
+        throw ApiError.internal('Failed to edit message: no result returned');
+      }
+      
       return Formatters.formatMessage(editedMessage);
     } catch (error) {
       logger.error(`Error editing message:`, error);

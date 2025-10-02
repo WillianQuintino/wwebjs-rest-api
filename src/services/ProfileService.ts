@@ -1,6 +1,6 @@
 import { MessageMedia } from 'whatsapp-web.js';
 import { whatsAppClientService } from './WhatsAppClientService';
-import { Validators, ApiError } from '../utils';
+import { Validators } from '../utils';
 import { logger } from '../config';
 import { ISetProfileNameDTO, ISetProfileStatusDTO, ISetProfilePictureDTO, IProfileResponse, IBatteryStatusResponse } from '../models';
 

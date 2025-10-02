@@ -10,7 +10,14 @@ export class GroupService {
     const client = whatsAppClientService.getClient(sessionId);
     const group = await client.createGroup(data.name, data.participantIds);
     logger.info(`Group ${data.name} created`);
-    return Formatters.formatGroupChat(group);
+    
+    // Se createGroup retornar string (ID do grupo), busque o chat pelo ID
+    if (typeof group === 'string') {
+      const groupChat = await client.getChatById(group);
+      return Formatters.formatGroupChat(groupChat as any);
+    }
+    
+    return Formatters.formatGroupChat(group as any);
   }
 
   async addParticipants(sessionId: string, data: IAddParticipantsDTO): Promise<void> {

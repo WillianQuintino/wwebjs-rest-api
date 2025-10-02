@@ -70,7 +70,7 @@ export class Formatters {
       ...baseChat,
       participants,
       owner: groupChat.owner._serialized,
-      createdAt: groupChat.createdAt,
+      createdAt: groupChat.createdAt instanceof Date ? groupChat.createdAt.getTime() : groupChat.createdAt,
       description: groupChat.description,
     };
   }

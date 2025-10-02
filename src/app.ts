@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import 'express-async-errors';
 import swaggerUi from 'swagger-ui-express';
+import './types/express';
 
 import swaggerSpecEN from './config/swagger-en';
 import swaggerSpecPT from './config/swagger-pt';

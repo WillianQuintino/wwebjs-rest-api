@@ -6,19 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Run development server:**
 ```bash
-npm run dev
+pnpm run dev
 ```
 Uses tsx watch mode for hot reloading.
 
 **Build for production:**
 ```bash
-npm run build
+pnpm run build
 ```
 Compiles TypeScript to `dist/` directory.
 
 **Start production server:**
 ```bash
-npm start
+pnpm start
 ```
 
 **Linting and formatting:**
@@ -33,6 +33,14 @@ pnpm test                 # Run all tests
 pnpm run test:watch       # Run tests in watch mode
 pnpm run test:coverage    # Generate coverage report
 pnpm run test:manual      # Run interactive manual tests
+```
+
+**Docker:**
+```bash
+docker-compose up -d      # Start containers
+docker-compose down       # Stop containers
+docker-compose logs -f    # View logs
+docker-compose ps         # Check status
 ```
 
 ## Architecture Overview
@@ -570,6 +578,166 @@ Tests run automatically:
 - Before deployment
 
 Ensure all tests pass before pushing code.
+
+## Docker Deployment
+
+**IMPORTANT: This project is fully containerized with Docker**
+
+### Docker Files
+
+- **Dockerfile**: Multi-stage build for optimized production image
+- **docker-compose.yml**: Complete orchestration with volumes and networking
+- **.dockerignore**: Excludes unnecessary files from image
+- **.env.docker**: Environment template for Docker deployment
+
+### Docker Architecture
+
+**Multi-stage Build:**
+1. **Builder stage**: Installs dependencies, builds TypeScript
+2. **Production stage**: Minimal image with only runtime dependencies
+
+**Features:**
+- ✅ Alpine Linux base (small size)
+- ✅ Chromium pre-installed for Puppeteer
+- ✅ Non-root user (`nodejs`)
+- ✅ Health checks
+- ✅ Persistent volumes for sessions/logs/uploads
+- ✅ Resource limits (CPU/Memory)
+- ✅ Security hardening (capabilities, no-new-privileges)
+
+### Quick Start
+
+```bash
+# Copy environment file
+cp .env.docker .env
+
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Check health
+docker-compose ps
+```
+
+### Volumes
+
+Three persistent volumes are automatically created:
+
+1. **whatsapp-sessions**: WhatsApp authentication data (CRITICAL)
+2. **whatsapp-logs**: Application logs
+3. **whatsapp-uploads**: Uploaded media files
+
+**IMPORTANT**: Never delete `whatsapp-sessions` volume or you'll lose all authenticated sessions.
+
+### Environment Variables
+
+Configure in `.env` file (see `.env.docker` for template):
+
+```env
+PORT=3000
+NODE_ENV=production
+PUPPETEER_HEADLESS=true
+API_KEY=your-secret-key
+ALLOWED_ORIGINS=http://localhost:3000
+```
+
+### Building Custom Images
+
+When modifying code:
+
+```bash
+# Rebuild image
+docker-compose build
+
+# Or rebuild and restart in one command
+docker-compose up -d --build
+
+# Force rebuild without cache
+docker-compose build --no-cache
+```
+
+### Production Deployment
+
+**Best practices for production:**
+
+1. **Security:**
+   - Generate strong API_KEY: `openssl rand -hex 32`
+   - Use HTTPS reverse proxy (Nginx/Traefik)
+   - Restrict ALLOWED_ORIGINS
+   - Keep Docker/packages updated
+
+2. **Monitoring:**
+   - Configure log rotation in docker-compose.yml
+   - Monitor resource usage: `docker stats whatsapp-api`
+   - Set up alerts for container health
+
+3. **Backups:**
+   - Backup whatsapp-sessions volume regularly
+   - Use automated backup scripts
+   - Test restore procedures
+
+4. **Updates:**
+   ```bash
+   git pull origin master
+   docker-compose up -d --build
+   docker image prune -f
+   ```
+
+### Troubleshooting Docker
+
+**Container won't start:**
+```bash
+docker-compose logs whatsapp-api
+docker-compose config  # Validate configuration
+```
+
+**Chromium/Puppeteer issues:**
+```bash
+# Check Chromium installation
+docker-compose exec whatsapp-api chromium-browser --version
+
+# Test Puppeteer
+docker-compose exec whatsapp-api node -e "require('puppeteer').launch().then(() => console.log('OK'))"
+```
+
+**Sessions not persisting:**
+```bash
+# Verify volume is mounted
+docker-compose exec whatsapp-api ls -la /app/sessions
+
+# Check volume exists
+docker volume inspect whatsapp-sessions
+```
+
+**High memory usage:**
+```bash
+# Monitor resources
+docker stats whatsapp-api
+
+# Adjust limits in docker-compose.yml:
+deploy:
+  resources:
+    limits:
+      memory: 2G  # Increase if needed
+```
+
+### Development with Docker
+
+For development, you can mount source code:
+
+```yaml
+# Add to docker-compose.yml services.whatsapp-api
+volumes:
+  - ./src:/app/src  # Mount source for live updates
+```
+
+Or use development compose file:
+
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
 
 ## Common Pitfalls
 

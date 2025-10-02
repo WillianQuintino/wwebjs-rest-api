@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  whatsapp-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      # Server Configuration
+      - PORT=3000
+      - NODE_ENV=${NODE_ENV:-production}
+
+      # API Configuration
+      - API_PREFIX=${API_PREFIX:-/api}
+      - API_VERSION=${API_VERSION:-v1}
+
+      # WhatsApp Configuration
+      - SESSION_NAME=${SESSION_NAME:-default}
+      - SESSION_PATH=/app/sessions
+      - PUPPETEER_HEADLESS=${PUPPETEER_HEADLESS:-true}
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+      # Security
+      - API_KEY=${API_KEY:-your-secret-api-key-here}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+
+      # Rate Limiting
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+
+      # File Upload
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-16777216}
+      - UPLOAD_PATH=/app/uploads
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_PATH=/app/logs
+    volumes:
+      # Persistent data volumes
+      - whatsapp-sessions:/app/sessions
+      - whatsapp-logs:/app/logs
+      - whatsapp-uploads:/app/uploads
+    networks:
+      - whatsapp-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+
+volumes:
+  whatsapp-sessions:
+    driver: local
+  whatsapp-logs:
+    driver: local
+  whatsapp-uploads:
+    driver: local
+
+networks:
+  whatsapp-network:
+    driver: bridge

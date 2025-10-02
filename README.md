@@ -14,6 +14,7 @@
 - [Instalação](#instalação)
 - [Configuração](#configuração)
 - [Uso](#uso)
+- [Docker](#-docker)
 - [Testes](#-testes)
 - [Documentação da API (Swagger)](#-documentação-da-api-swagger)
 - [API Endpoints](#api-endpoints)
@@ -125,6 +126,236 @@ pnpm run build
 
 # Start
 pnpm start
+```
+
+## 🐳 Docker
+
+A maneira mais fácil de executar esta API é usando Docker. O projeto inclui suporte completo para containers com Docker e Docker Compose.
+
+### Pré-requisitos Docker
+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### Início Rápido com Docker
+
+```bash
+# 1. Copie o arquivo de ambiente
+cp .env.docker .env
+
+# 2. (Opcional) Edite .env com suas configurações
+nano .env
+
+# 3. Inicie o container
+docker-compose up -d
+
+# 4. Verifique os logs
+docker-compose logs -f
+
+# 5. Acesse a API
+curl http://localhost:3000/health
+```
+
+A API estará disponível em `http://localhost:3000`
+
+### Comandos Docker Úteis
+
+```bash
+# Iniciar containers
+docker-compose up -d
+
+# Parar containers
+docker-compose down
+
+# Ver logs em tempo real
+docker-compose logs -f whatsapp-api
+
+# Reiniciar container
+docker-compose restart whatsapp-api
+
+# Reconstruir imagem após mudanças no código
+docker-compose up -d --build
+
+# Ver status dos containers
+docker-compose ps
+
+# Acessar shell do container
+docker-compose exec whatsapp-api sh
+
+# Parar e remover volumes (CUIDADO: apaga sessões)
+docker-compose down -v
+```
+
+### Build Manual da Imagem Docker
+
+```bash
+# Build da imagem
+docker build -t whatsapp-api:latest .
+
+# Executar container manualmente
+docker run -d \
+  --name whatsapp-api \
+  -p 3000:3000 \
+  -e NODE_ENV=production \
+  -v whatsapp-sessions:/app/sessions \
+  -v whatsapp-logs:/app/logs \
+  whatsapp-api:latest
+```
+
+### Variáveis de Ambiente Docker
+
+As seguintes variáveis podem ser configuradas no arquivo `.env`:
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `PORT` | `3000` | Porta do servidor |
+| `NODE_ENV` | `production` | Ambiente de execução |
+| `SESSION_NAME` | `default` | Nome da sessão padrão |
+| `PUPPETEER_HEADLESS` | `true` | Executar Chromium sem interface |
+| `API_KEY` | - | Chave de API (⚠️ altere em produção) |
+| `ALLOWED_ORIGINS` | `http://localhost:3000` | Origens permitidas (CORS) |
+| `LOG_LEVEL` | `info` | Nível de log (error, warn, info, debug) |
+
+### Volumes Persistentes
+
+O Docker Compose cria volumes para persistir dados importantes:
+
+- **whatsapp-sessions**: Dados de autenticação do WhatsApp
+- **whatsapp-logs**: Arquivos de log da aplicação
+- **whatsapp-uploads**: Arquivos enviados/recebidos
+
+```bash
+# Listar volumes
+docker volume ls | grep whatsapp
+
+# Inspecionar volume
+docker volume inspect whatsapp-sessions
+
+# Backup de volume
+docker run --rm -v whatsapp-sessions:/data -v $(pwd):/backup alpine tar czf /backup/sessions-backup.tar.gz /data
+
+# Restaurar volume
+docker run --rm -v whatsapp-sessions:/data -v $(pwd):/backup alpine sh -c "cd /data && tar xzf /backup/sessions-backup.tar.gz --strip 1"
+```
+
+### Health Check
+
+O container inclui um health check automático:
+
+```bash
+# Verificar saúde do container
+docker inspect --format='{{.State.Health.Status}}' whatsapp-api
+
+# Ver histórico de health checks
+docker inspect --format='{{range .State.Health.Log}}{{.Start}}: {{.Output}}{{end}}' whatsapp-api
+```
+
+### Recursos e Limites
+
+O `docker-compose.yml` define limites de recursos:
+
+- **CPU**: 1 core (máximo), 0.5 core (reservado)
+- **Memória**: 1GB (máximo), 512MB (reservado)
+
+Ajuste conforme necessário editando `docker-compose.yml`:
+
+```yaml
+deploy:
+  resources:
+    limits:
+      cpus: '2'        # Aumentar para 2 cores
+      memory: 2G       # Aumentar para 2GB
+    reservations:
+      cpus: '1'
+      memory: 1G
+```
+
+### Segurança Docker
+
+O container é configurado com várias medidas de segurança:
+
+- ✅ Usuário não-root (`nodejs`)
+- ✅ Capabilities mínimas necessárias
+- ✅ Read-only root filesystem (onde possível)
+- ✅ No new privileges
+- ✅ Multi-stage build (imagem menor)
+
+### Troubleshooting Docker
+
+**Container não inicia:**
+```bash
+# Ver logs completos
+docker-compose logs whatsapp-api
+
+# Verificar configuração
+docker-compose config
+```
+
+**Chromium não funciona:**
+```bash
+# Verificar se Chromium está instalado no container
+docker-compose exec whatsapp-api chromium-browser --version
+
+# Testar Puppeteer manualmente
+docker-compose exec whatsapp-api node -e "const puppeteer = require('puppeteer'); puppeteer.launch().then(() => console.log('OK'))"
+```
+
+**Sessões não persistem:**
+```bash
+# Verificar se volume está montado
+docker-compose exec whatsapp-api ls -la /app/sessions
+
+# Verificar permissões
+docker-compose exec whatsapp-api ls -la /app
+```
+
+**Alto consumo de memória:**
+```bash
+# Ver uso de recursos
+docker stats whatsapp-api
+
+# Reduzir limite de memória no docker-compose.yml
+# Considerar aumentar swap
+```
+
+### Produção com Docker
+
+Para deploy em produção:
+
+1. **Use variáveis de ambiente seguras**:
+```bash
+# Gere uma API key forte
+openssl rand -hex 32
+
+# Configure no .env
+API_KEY=sua-chave-gerada-aqui
+```
+
+2. **Configure HTTPS** (use reverse proxy como Nginx/Traefik)
+
+3. **Monitore logs**:
+```bash
+# Configurar log driver
+docker-compose.yml:
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+```
+
+4. **Backups automáticos** dos volumes
+
+5. **Atualizações**:
+```bash
+# Pull nova versão
+git pull origin master
+
+# Rebuild e restart
+docker-compose up -d --build
+
+# Limpar imagens antigas
+docker image prune -f
 ```
 
 ## 🧪 Testes

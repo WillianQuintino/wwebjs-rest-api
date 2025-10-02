@@ -1,0 +1,43 @@
+# Fly.io Configuration for WhatsApp Web.js API
+# Documentation: https://fly.io/docs/reference/configuration/
+
+app = "whatsapp-api"
+primary_region = "gru"  # São Paulo, Brazil
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  SESSION_NAME = "fly-session"
+  PUPPETEER_HEADLESS = "true"
+  PUPPETEER_EXECUTABLE_PATH = "/usr/bin/chromium-browser"
+  LOG_LEVEL = "info"
+  SESSION_PATH = "/app/sessions"
+  LOG_PATH = "/app/logs"
+  UPLOAD_PATH = "/app/uploads"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "60s"
+    interval = "30s"
+    method = "get"
+    path = "/health"
+    protocol = "http"
+    timeout = "10s"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+[mounts]
+  source = "whatsapp_data"
+  destination = "/app/sessions"

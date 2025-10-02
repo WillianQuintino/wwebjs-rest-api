@@ -1,8 +1,8 @@
 # Fly.io Configuration for WhatsApp Web.js API
 # Documentation: https://fly.io/docs/reference/configuration/
 
-app = "whatsapp-api"
-primary_region = "gru"  # São Paulo, Brazil
+app = "wwebjs-rest-api"
+primary_region = "gig"
 
 [build]
   dockerfile = "Dockerfile"
@@ -21,7 +21,7 @@ primary_region = "gru"  # São Paulo, Brazil
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = false
+  auto_stop_machines = "off"
   auto_start_machines = true
   min_machines_running = 1
 
@@ -36,8 +36,8 @@ primary_region = "gru"  # São Paulo, Brazil
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
-  memory_mb = 512
+  memory_mb = 1024
 
-[mounts]
-  source = "whatsapp_data"
+[[mounts]]
+  source = "whatsapp_sessions"
   destination = "/app/sessions"

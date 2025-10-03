@@ -9,6 +9,7 @@ const server = app.listen(env.port, () => {
   logger.info(`🚀 Server started on port ${env.port}`);
   logger.info(`📝 Environment: ${env.nodeEnv}`);
   logger.info(`🔗 API URL: http://localhost:${env.port}${env.apiPrefix}/${env.apiVersion}`);
+  logger.info(`📚 Documentation: http://localhost:${env.port}/api-docs`);
 });
 
 // Graceful shutdown

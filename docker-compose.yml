@@ -8,7 +8,7 @@ services:
     container_name: whatsapp-api
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3001}:3000"
     environment:
       # Server Configuration
       - PORT=3000
@@ -40,14 +40,14 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_PATH=/app/logs
     volumes:
-      # Persistent data volumes
-      - whatsapp-sessions:/app/sessions
-      - whatsapp-logs:/app/logs
-      - whatsapp-uploads:/app/uploads
+      # Persistent data volumes using bind mounts
+      - /DATA/AppData/wwebjs-rest-api/sessions:/app/sessions
+      - /DATA/AppData/wwebjs-rest-api/logs:/app/logs
+      - /DATA/AppData/wwebjs-rest-api/uploads:/app/uploads
     networks:
       - whatsapp-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -71,14 +71,6 @@ services:
       - SETGID
       - SETUID
       - DAC_OVERRIDE
-
-volumes:
-  whatsapp-sessions:
-    driver: local
-  whatsapp-logs:
-    driver: local
-  whatsapp-uploads:
-    driver: local
 
 networks:
   whatsapp-network:

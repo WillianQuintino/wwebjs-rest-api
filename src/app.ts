@@ -22,9 +22,13 @@ class App {
   }
 
   private middlewares(): void {
-    // Security - Disable CSP for Swagger UI to work
+    // Security - Configure Helmet for development with HTTP
     this.app.use(helmet({
       contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      originAgentCluster: false,
     }));
 
     // CORS

@@ -22,16 +22,9 @@ class App {
   }
 
   private middlewares(): void {
-    // Security - Configure Helmet to allow Swagger UI
+    // Security - Disable CSP for Swagger UI to work
     this.app.use(helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "https:"],
-        },
-      },
+      contentSecurityPolicy: false,
     }));
 
     // CORS

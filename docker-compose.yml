@@ -26,7 +26,7 @@ services:
 
       # Security
       - API_KEY=${API_KEY:-your-secret-api-key-here}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3001}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://100.119.167.36:3001,http://localhost:3001}
 
       # Rate Limiting
       - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
